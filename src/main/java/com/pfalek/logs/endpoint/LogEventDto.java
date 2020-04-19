@@ -17,7 +17,7 @@ public class LogEventDto {
     private final String message;
     private final Application application;
 
-    public LogEventDto from(final LogEvent logEvent) {
+    public static LogEventDto from(final LogEvent logEvent) {
         return LogEventDto.builder()
                 .date(logEvent.getDate())
                 .level(logEvent.getLevel())
