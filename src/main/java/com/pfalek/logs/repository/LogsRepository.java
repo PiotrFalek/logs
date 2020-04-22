@@ -8,13 +8,16 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface LogsRepository extends JpaRepository<LogEvent, Long> {
-    @Query(value = "SELECT l FROM LogEvents l WHERE l.date = :date AND l.application = :application")
-    List<LogEvent> findAllByDateAndApplication(@Param("date") final LocalDate date, @Param("application") final Application application,
+public interface
+LogsRepository extends JpaRepository<LogEvent, Long> {
+    @Query(value = "SELECT l FROM LogEvents l WHERE l.dateTime >= :startDateTime AND l.dateTime <= :endDateTime AND l.application = :application")
+    List<LogEvent> findAllByDateAndApplication(@Param("startDateTime") final LocalDateTime startDateTime,
+                                               @Param("endDateTime") final LocalDateTime endDateTime,
+                                               @Param("application") final Application application,
                                                final Pageable pageable);
 
 }
