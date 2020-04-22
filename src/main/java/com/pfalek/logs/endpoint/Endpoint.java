@@ -4,6 +4,10 @@ import com.pfalek.logs.model.Application;
 import com.pfalek.logs.model.LogEvent;
 import com.pfalek.logs.parsers.ProxyLogParser;
 import com.pfalek.logs.repository.LogsRepository;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiResponse;
+import io.swagger.annotations.ApiResponses;
+import io.swagger.annotations.ResponseHeader;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -24,15 +28,17 @@ public class Endpoint {
     private final LogsRepository logsRepository;
     private final ProxyLogParser proxyLogParser;
 
-    @GetMapping("/logs/{application}")
-    public List<LogEventOutput> findLogs(@PathVariable("application") final Application application,
-                                         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
-                                         @RequestParam final int page, @RequestParam final int pageSize) {
+    @ApiOperation(value = "/logs/{application}", produces = "application/json, application/xml")
+    @GetMapping(value = "/logs/{application}", produces = { "application/json", "application/xml" })
+    public LogEventsOutput findLogs(@PathVariable("application") final Application application,
+                                    @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) final LocalDate date,
+                                    @RequestParam final int page, @RequestParam final int pageSize) {
         final List<LogEvent> logEvents = logsRepository.findAllByDateAndApplication(LocalDateTime.of(date, LocalTime.MIN),
                 LocalDateTime.of(date, LocalTime.MAX), application, PageRequest.of(page, pageSize));
-        return logEvents.stream()
+        final List<LogEventOutput> logEventsOutput = logEvents.stream()
                 .map(LogEventOutput::from)
                 .collect(Collectors.toList());
+        return new LogEventsOutput(logEventsOutput);
     }
 
     @PostMapping("/logs")
